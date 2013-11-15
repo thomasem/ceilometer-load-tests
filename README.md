@@ -1,4 +1,4 @@
-ceilometer_load_tests
+Ceilometer Load Tests
 =====================
 
-Load tests for Ceilometer storage drivers
+Load tests for Ceilometer storage drivers.
