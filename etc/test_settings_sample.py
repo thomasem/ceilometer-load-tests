@@ -1,13 +1,19 @@
-db_user = 'admin'
-db_passwd = 'password'
-db_host = 'localhost'
-db_port = '3306'
-log_frequency_docs = 1000
-message_order_integrity = 4
-num_docs = 500000
-num_traits_per_doc = 120
+#!/usr/bin/env python
+
+
+# Database settings
+db_conn = "mysql://root:password@localhost/ceilometer?charset=utf8"
+
+# Tester settings
+num_events = 500000
+log_frequency = 1000
+batch_size = 10
+
+# Randomizer settings
+traits_per_event = 120
 rand_int_start = 12897
 rand_int_range = 40
-rand_generated_potential = 20
 timestamp_start = 1262304000
 timestamp_end = 1356955199
+rand_generated_potential = 20
+message_order_integrity = 4
