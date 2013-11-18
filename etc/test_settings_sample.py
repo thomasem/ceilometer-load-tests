@@ -10,7 +10,7 @@ log_frequency = 1000
 batch_size = 10
 
 # Randomizer settings
-traits_per_event = 120
+extra_traits_per_event = 50
 rand_int_start = 12897
 rand_int_range = 40
 timestamp_start = 1262304000

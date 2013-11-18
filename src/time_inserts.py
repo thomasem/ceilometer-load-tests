@@ -25,7 +25,7 @@ log.setup("Ceilometer Load Test")
 
 if __name__ == "__main__":
     conn = storage.get_connection(cfg.CONF)
-    rando = RandomEventGenerator(**test_settings.__dict__)
+    rand = RandomEventGenerator(**test_settings.__dict__)
     total_seconds = 0
     delta_history = []
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     for x in range(1, revs + 1):
         start = time.time()
         conn.record_events(
-            rando.generate_random_events(test_settings.batch_size))
+            rand.generate_random_events(test_settings.batch_size))
         end = time.time()
         total_seconds += end - start
 
@@ -42,7 +42,8 @@ if __name__ == "__main__":
             delta_history.append(total_seconds)
             log_msg = ("Inserted %d events in %d sized batches in "
                        "%s\tTotal inserted: %d" %
-                       (log_frequency, test_settings.batch_size,
+                       (log_frequency * test_settings.batch_size,
+                        test_settings.batch_size,
                         str(timedelta(seconds=total_seconds)),
                         x * test_settings.batch_size))
             LOG.info(log_msg)

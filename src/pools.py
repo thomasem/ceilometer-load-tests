@@ -1,35 +1,66 @@
 #!/usr/bin/env python
 
+#stdlib
+import itertools
+import uuid
+
+#third-party
 from ceilometer.storage.models import Trait
 
+#application
+import test_settings
 
 t_text = Trait.TEXT_TYPE
 t_int = Trait.INT_TYPE
 t_float = Trait.FLOAT_TYPE
 t_datetime = Trait.DATETIME_TYPE
 
+# Mock expected traits using estimated cardinality
+services = ['api', 'scheduler', 'compute', 'conductor']
+hosts = ["%s-%d" % (s, n) for s, n in
+         itertools.product(services, range(4))]
+cells = ['cell-%d' % (x + 1) for x in xrange(4)]
+tenants = ["tenant_%d_wargarbl" % n for n in range(10000, 20000)]
+users = ["%s_%d" % (t, u) for (t, u) in itertools.product(tenants, range(3))]
+states = ['state_%s' % n for n in range(20)]
+tasks = ['task_%d' % t for t in range(20)]
+request_ids = ["req-%s" % uuid.uuid4() for x in
+               range(test_settings.num_events / 6)]
+instances = ["%s" % str(uuid.uuid4()) for n in
+             range(test_settings.num_events / 4)]
+image_types = ['base', 'snapshot']
+os_types = ['linux', 'windows', 'centos']
+distros = ["distro_%s" % n for n in range(3)]
+rax_options = ["%s-%s-%s" % (t, o, d) for t, o, d in
+               itertools.product(image_types, os_types, distros)]
+images = ["%s" % str(uuid.uuid4()) for (o, n) in
+          itertools.product(rax_options, range(4))]
+flavors = ["%s" % str(uuid.uuid4()) for n in range(10)]
+instance_type_ids = range(len(flavors))
+priorities = ['error', 'info']
 
-events_pool = [
-    'compute.instance.create.start',
-    'compute.instance.create.end',
-    'compute.instance.rebuild.start',
-    'compute.instance.rebuild.end',
-    'compute.instance.resize.prep.start',
-    'compute.instance.resize.prep.end',
-    'compute.instance.resize.revert.start',
-    'compute.instance.resize.revert.end',
-    'compute.instance.finish_resize.end',
-    'compute.instance.rescue.start',
-    'compute.instance.rescue.end',
-    'compute.instance.delete.end',
-    'compute.instance.exists',
-    'compute.instance.update',
-    'image.exists',
-    'image.create',
-    'image.upload',
-    'image.activate',
-    'image.delete',
-    'image.update'
+compute_keys = [
+    ('hostname', t_text, hosts),
+    ('request_id', t_text, request_ids),
+    ('tenant (_context_project_id)', t_text, tenants),
+    ('user (_context_user_id)', t_text, users),
+    ('uuid (playload.instance_id)', t_text, instances),
+    ('owner (payload.tenant_id)', t_text, users),
+    ('launched_at', t_datetime),
+    ('deleted_at', t_datetime),
+    ('instance_flavor_id', t_text, flavors),
+    ('instance_type_id', t_int, instance_type_ids),
+    ('state', t_text, states),
+    ('old_state', t_text, states),
+    ('task', t_text, tasks),
+    ('old_task', t_text, tasks),
+    ('progress', t_int, range(15)),
+    ('image_type', t_text, image_types),
+    ('os_type', t_text, os_types),
+    ('os_distro', t_text, distros),
+    ('rax_options', t_text, rax_options),
+    ('audit_period_beginning', t_datetime),
+    ('audit_period_ending', t_datetime)
 ]
 
 strings_pool = [
@@ -83,6 +114,48 @@ strings_pool = [
     '8n!9g3<avt96-6el#+lz=4&',
     'gs7_s>j_5i-',
     'sxpd2.t`q`a))hu+'
+]
+
+glance_keys = [
+    ('name', t_text, images),
+    ('uuid (payload.id)', t_text, images),
+    ('owner', t_text, users),
+    ('size', t_int, instance_type_ids),
+    ('created_at', t_datetime),
+    ('deleted_at', t_datetime),
+    ('status', t_text, states),
+    ('image_type', t_text, image_types),
+    ('os_type', t_text, os_types),
+    ('os_distro', t_text, distros),
+    ('rax_options', t_text, rax_options),
+]
+
+required_keys = [
+    ('publisher', t_text, hosts),
+    ('priority', t_text, priorities)
+]
+
+events_pool = [
+    'compute.instance.create.start',
+    'compute.instance.create.end',
+    'compute.instance.rebuild.start',
+    'compute.instance.rebuild.end',
+    'compute.instance.resize.prep.start',
+    'compute.instance.resize.prep.end',
+    'compute.instance.resize.revert.start',
+    'compute.instance.resize.revert.end',
+    'compute.instance.finish_resize.end',
+    'compute.instance.rescue.start',
+    'compute.instance.rescue.end',
+    'compute.instance.delete.end',
+    'compute.instance.exists',
+    'compute.instance.update',
+    'image.exists',
+    'image.create',
+    'image.upload',
+    'image.activate',
+    'image.delete',
+    'image.update'
 ]
 
 keys_types_pool = [
@@ -290,6 +363,5 @@ keys_types_pool = [
     ('yqzwhtyzkurru_ouil', t_datetime),
     ('enaabweeg_euqlzgdaxgecjeswwmzsw_', t_int),
     ('bxdlm_hrxoegemgcgpxcjixfzt', t_datetime),
-    ('vjdvismqjmtkktgz_zvrmx_myfkivde', t_datetime),
     ('jbfauielfas;dfkajsmas;dfj;kefj', t_float)
 ]
