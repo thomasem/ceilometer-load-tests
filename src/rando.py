@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 
-#stdlib
 import datetime
 import itertools
 import random
 import time
 import uuid
 
-#third-party
 from ceilometer.storage.models import Event
 from ceilometer.storage.models import Trait
 
-#application
 import pools
 
 
@@ -55,7 +52,7 @@ class RandomEventGenerator(object):
         return random.choice(pools.strings_pool)
 
     def _make_traits(self, traits_list):
-        """Given a list of (key, type) tuples, make a key-value traits list.
+        """Given a list of (key, dtype, pool=None) tuples, build a Traits list.
         """
         traits = []
         for key, dtype, pool in itertools.chain(*traits_list):
@@ -67,6 +64,8 @@ class RandomEventGenerator(object):
         return traits
 
     def _create_random_event(self):
+        """Randomizes event attributes and traits.
+        """
         required_traits = None
         event_type = pools.events_pool[random.randrange(0,
                                        len(pools.events_pool))]
@@ -93,6 +92,8 @@ class RandomEventGenerator(object):
         return event_models
 
     def generate_random_event(self):
+        """Generates a single random event.
+        """
         return self._create_random_event()
 
     def __init__(self, rand_int_start=0, rand_int_range=100,

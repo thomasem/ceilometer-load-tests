@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 
-#stdlib
 from datetime import timedelta
 import time
 
-#third-party
 from ceilometer import storage
 from ceilometer.openstack.common import log
 from oslo.config import cfg
 
-#application
 from rando import RandomEventGenerator
 import test_settings
 
