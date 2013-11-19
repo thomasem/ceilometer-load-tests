@@ -14,29 +14,57 @@ t_text = Trait.TEXT_TYPE
 t_int = Trait.INT_TYPE
 t_float = Trait.FLOAT_TYPE
 t_datetime = Trait.DATETIME_TYPE
+num_events = test_settings.num_events
 
-# Mock expected traits using estimated cardinality
+# Cardinality ratios for things that will scale with event quantity
+# med_card is like 26K tenants for 24M notifications
+#
+# med_high_card is like 264K instances referenced in 24M notifications
+#
+# high_card is like 2.1M requests referenced in 24M notifications
+
+high_card = 0.088
+med_high_card = 0.011
+med_card = 0.0011
+low_med_card = 0.00027
+low_card = 0.000088
+very_low_card = 0.000005
+
+# Mock expected traits to better estimate cardinality
 services = ['api', 'scheduler', 'compute', 'conductor']
 hosts = ["%s-%d" % (s, n) for s, n in
          itertools.product(services, range(4))]
 cells = ['cell-%d' % (x + 1) for x in xrange(4)]
-tenants = ["tenant_%d_wargarbl" % n for n in range(10000, 20000)]
-users = ["%s_%d" % (t, u) for (t, u) in itertools.product(tenants, range(3))]
-states = ['state_%s' % n for n in range(20)]
 tasks = ['task_%d' % t for t in range(20)]
+states = ['state_%s' % n for n in range(20)]
+
+tenants = ["%s" % str(uuid.uuid4()) for n in range(int(num_events * med_card))]
+
+users = ["%s" % str(uuid.uuid4()) for (t, u) in
+         itertools.product(tenants, range(3))]
+
 request_ids = ["req-%s" % uuid.uuid4() for x in
-               range(test_settings.num_events / 6)]
+               range(int(num_events * high_card))]
+
 instances = ["%s" % str(uuid.uuid4()) for n in
-             range(test_settings.num_events / 4)]
+             range(int(test_settings.num_events * med_high_card))]
+
 image_types = ['base', 'snapshot']
+
 os_types = ['linux', 'windows', 'centos']
+
 distros = ["distro_%s" % n for n in range(3)]
+
 rax_options = ["%s-%s-%s" % (t, o, d) for t, o, d in
                itertools.product(image_types, os_types, distros)]
+
 images = ["%s" % str(uuid.uuid4()) for (o, n) in
-          itertools.product(rax_options, range(4))]
+          itertools.product(rax_options, range(int(num_events * low_card)))]
+
 flavors = ["%s" % str(uuid.uuid4()) for n in range(10)]
+
 instance_type_ids = range(len(flavors))
+
 priorities = ['error', 'info']
 
 compute_keys = [
@@ -61,6 +89,25 @@ compute_keys = [
     ('rax_options', t_text, rax_options),
     ('audit_period_beginning', t_datetime),
     ('audit_period_ending', t_datetime)
+]
+
+glance_keys = [
+    ('name', t_text, images),
+    ('uuid (payload.id)', t_text, images),
+    ('owner', t_text, users),
+    ('size', t_int, instance_type_ids),
+    ('created_at', t_datetime),
+    ('deleted_at', t_datetime),
+    ('status', t_text, states),
+    ('image_type', t_text, image_types),
+    ('os_type', t_text, os_types),
+    ('os_distro', t_text, distros),
+    ('rax_options', t_text, rax_options),
+]
+
+required_keys = [
+    ('publisher', t_text, hosts),
+    ('priority', t_text, priorities)
 ]
 
 strings_pool = [
@@ -116,25 +163,6 @@ strings_pool = [
     'sxpd2.t`q`a))hu+'
 ]
 
-glance_keys = [
-    ('name', t_text, images),
-    ('uuid (payload.id)', t_text, images),
-    ('owner', t_text, users),
-    ('size', t_int, instance_type_ids),
-    ('created_at', t_datetime),
-    ('deleted_at', t_datetime),
-    ('status', t_text, states),
-    ('image_type', t_text, image_types),
-    ('os_type', t_text, os_types),
-    ('os_distro', t_text, distros),
-    ('rax_options', t_text, rax_options),
-]
-
-required_keys = [
-    ('publisher', t_text, hosts),
-    ('priority', t_text, priorities)
-]
-
 events_pool = [
     'compute.instance.create.start',
     'compute.instance.create.end',
@@ -158,6 +186,9 @@ events_pool = [
     'image.update'
 ]
 
+# Used for pseudo-random extra traits, but applying a finite number,
+# since there is generally a finite number of possible traits in OpenStack at
+# any one time.
 keys_types_pool = [
     ('lbbxki_mvvp_kiweovddbkixquibhgsn_e', t_text),
     ('ariywoxnkzfxhxwimfctyynihsnctkg', t_int),
