@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 
-#stdlib
 import itertools
 import random
 import string
 import uuid
 
-#third-party
 from ceilometer.storage.models import Trait
 
-#application
 import test_settings
 
 
@@ -55,11 +52,11 @@ extra_traits_pool = [(key, dtype, None) for (key, dtype) in itertools.product(
 
 # Cardinality ratios for things that will scale with event quantity. Examples:
 #
-# med_card is like 26K tenants for 24M notifications
+# Med_card is like 26K tenants for 24M notifications
 #
-# med_high_card is like 264K instances referenced in 24M notifications
+# Med_high_card is like 264K instances referenced in 24M notifications
 #
-# high_card is like 2.1M requests referenced in 24M notifications
+# High_card is like 2.1M requests referenced in 24M notifications
 
 high_card = 0.088
 med_high_card = 0.011
@@ -68,7 +65,7 @@ low_med_card = 0.00027
 low_card = 0.000088
 very_low_card = 0.000005
 
-# Mock expected traits to better estimate cardinality
+# Mock expected traits to better estimate cardinality.
 priorities = ['error', 'info']
 services = ['api', 'scheduler', 'compute', 'conductor']
 hosts = ["%s-%d" % (s, n) for s, n in
