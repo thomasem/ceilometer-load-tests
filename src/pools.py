@@ -31,49 +31,51 @@ low_card = 0.000088
 very_low_card = 0.000005
 
 # Mock expected traits to better estimate cardinality
+priorities = ['error', 'info']
 services = ['api', 'scheduler', 'compute', 'conductor']
 hosts = ["%s-%d" % (s, n) for s, n in
          itertools.product(services, range(4))]
 cells = ['cell-%d' % (x + 1) for x in xrange(4)]
 tasks = ['task_%d' % t for t in range(20)]
 states = ['state_%s' % n for n in range(20)]
-
-tenants = ["%s" % str(uuid.uuid4()) for n in range(int(num_events * med_card))]
-
-users = ["%s" % str(uuid.uuid4()) for (t, u) in
-         itertools.product(tenants, range(3))]
-
-request_ids = ["req-%s" % uuid.uuid4() for x in
-               range(int(num_events * high_card))]
-
-instances = ["%s" % str(uuid.uuid4()) for n in
-             range(int(test_settings.num_events * med_high_card))]
-
+flavors = ["%s" % str(uuid.uuid4()) for n in range(10)]
+instance_type_ids = range(len(flavors))
 image_types = ['base', 'snapshot']
-
 os_types = ['linux', 'windows', 'centos']
-
 distros = ["distro_%s" % n for n in range(3)]
-
 rax_options = ["%s-%s-%s" % (t, o, d) for t, o, d in
                itertools.product(image_types, os_types, distros)]
 
-images = ["%s" % str(uuid.uuid4()) for (o, n) in
-          itertools.product(rax_options, range(int(num_events * low_card)))]
+# Some of these could have too low cardinality to show up with lower scales,
+# so set at least one.
+images = [uuid.uuid4()] + \
+    ["%s" % str(uuid.uuid4()) for (o, n) in
+     itertools.product(rax_options, range(int(num_events * low_card)))]
 
-flavors = ["%s" % str(uuid.uuid4()) for n in range(10)]
+instances = [uuid.uuid4()] + \
+    ["%s" % str(uuid.uuid4()) for n in
+     range(int(test_settings.num_events * med_high_card))]
 
-instance_type_ids = range(len(flavors))
+tenants = [uuid.uuid4()] + \
+    ["%s" % str(uuid.uuid4()) for n in
+     range(int(num_events * med_card))]
 
-priorities = ['error', 'info']
+users = [uuid.uuid4()] + \
+    ["%s" % str(uuid.uuid4()) for n in
+     range(int(num_events * med_high_card))]
+
+request_ids = [uuid.uuid4()] + \
+    ["req-%s" % uuid.uuid4() for x in
+     range(int(num_events * high_card))]
+
 
 compute_keys = [
     ('hostname', t_text, hosts),
     ('request_id', t_text, request_ids),
-    ('tenant (_context_project_id)', t_text, tenants),
-    ('user (_context_user_id)', t_text, users),
-    ('uuid (playload.instance_id)', t_text, instances),
-    ('owner (payload.tenant_id)', t_text, users),
+    ('tenant', t_text, tenants),
+    ('user', t_text, users),
+    ('uuid', t_text, instances),
+    ('owner', t_text, users),
     ('launched_at', t_datetime),
     ('deleted_at', t_datetime),
     ('instance_flavor_id', t_text, flavors),
@@ -93,7 +95,7 @@ compute_keys = [
 
 glance_keys = [
     ('name', t_text, images),
-    ('uuid (payload.id)', t_text, images),
+    ('uuid', t_text, images),
     ('owner', t_text, users),
     ('size', t_int, instance_type_ids),
     ('created_at', t_datetime),
