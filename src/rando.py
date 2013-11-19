@@ -2,6 +2,7 @@
 
 #stdlib
 import datetime
+import itertools
 import random
 import time
 import uuid
@@ -57,7 +58,7 @@ class RandomEventGenerator(object):
         """Given a list of (key, type) tuples, make a key-value traits list.
         """
         traits = []
-        for key_conf in required:
+        for key_conf in itertools.chain(*required):
             if key_conf[1] == Trait.DATETIME_TYPE:
                 traits.append(
                     Trait(
@@ -90,11 +91,11 @@ class RandomEventGenerator(object):
         elif event_type.startswith('image'):
             required_traits = pools.glance_keys
 
-        required_traits = required_traits + pools.required_keys
+        required_traits_list = [required_traits, pools.required_keys]
 
         extra_keys = random.sample(pools.keys_types_pool,
                                    self.extra_traits_per_event)
-        trait_models = self._make_traits(required_traits, extra_keys)
+        trait_models = self._make_traits(required_traits_list, extra_keys)
         return Event(str(uuid.uuid4()),
                      event_type,
                      self._get_next_generated(), trait_models)

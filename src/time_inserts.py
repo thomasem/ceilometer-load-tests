@@ -48,6 +48,7 @@ if __name__ == "__main__":
                         x * test_settings.batch_size))
             LOG.info(log_msg)
             total_seconds = 0
+        time.sleep(test_settings.rest_time)
 
     total = sum(delta_history)
 
