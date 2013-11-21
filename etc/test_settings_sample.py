@@ -38,3 +38,12 @@ timestamp_start = 1262304000    # Start of timestamp range in unix time
 timestamp_end = 1356955199      # End of timestamp range in unix time
 rand_generated_potential = 10   # Potential time for next 'generated' trait
 message_order_integrity = 5     # Rank of integrity for message ordering (1-5)
+
+# Plugin settings
+plugins = {
+    'graphite.GraphitePlugin': {
+        'graphite_host': '',
+        'graphite_port': 2003,
+        'graphite_path': 'ceilometer.load-tests.{db_type}_{db_version}.{test_name}'
+    }
+}
