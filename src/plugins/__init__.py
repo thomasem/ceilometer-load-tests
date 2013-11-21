@@ -44,8 +44,8 @@ def load_plugins(plugin_conf):
         tokenized = path.split('.')
         classname = tokenized[-1]
         module = plugins
-        for mod in tokenized[:-1]:
-            module = getattr(plugins, mod)
+        for name in tokenized[:-1]:
+            module = getattr(plugins, name)
         plugin = getattr(module, classname)
         instantiated_plugins.append(plugin(**conf))
     return instantiated_plugins
