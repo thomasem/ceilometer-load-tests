@@ -18,6 +18,8 @@
 """Settings for Ceilometer load testing.
 """
 
+from plugins import LogDriver
+
 # Database settings
 # db_conn = "mysql://user:password@localhost/ceilometer?charset=utf8"
 db_conn = "mongodb://localhost:27017/ceilometer"
@@ -25,7 +27,7 @@ db_conn = "mongodb://localhost:27017/ceilometer"
 # Tester settings
 num_events = 500000             # Number of events to try and store during test
 batch_size = 1000               # Events per storage call
-log_frequency = 1               # Number of batches, not events
+publish_frequency = 1           # Number of batches, not events
 rest_time = 0                   # Time to rest between batches
 
 # Randomizer settings
@@ -40,10 +42,7 @@ rand_generated_potential = 10   # Potential time for next 'generated' trait
 message_order_integrity = 5     # Rank of integrity for message ordering (1-5)
 
 # Plugin settings
+# We'll simply do this until we start using Stevedore for extension management.
 plugins = {
-    'graphite.GraphitePlugin': {
-        'graphite_host': '',
-        'graphite_port': 2003,
-        'graphite_path': 'ceilometer.load-tests.{db_type}_{db_version}.{test_name}'
-    }
+    'log': LogDriver("Ceilometer Load Test"),
 }

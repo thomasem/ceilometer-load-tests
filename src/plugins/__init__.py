@@ -17,35 +17,3 @@
 # under the License.
 """Plugins module for Ceilometer load testing.
 """
-
-
-def load_plugins(plugin_conf):
-    """Load plugins from a passed in configuration
-
-    :Example:
-    plugins = {
-        graphite.GraphitePlugin: {
-            'host': <host_address>,
-            'port': <port>,
-            'path': 'ceilometer.load-tests.mongo_2_4_8',
-            'resolution': 300
-        },
-        <relative_plugin_path>: {
-            'param_1': ...,
-            'param_2': ...,
-            'param_3': ...
-        },
-        ...
-    }
-    """
-    instantiated_plugins = []
-    plugins = __import__('plugins')
-    for path, conf in plugin_conf.iteritems():
-        tokenized = path.split('.')
-        classname = tokenized[-1]
-        module = plugins
-        for name in tokenized[:-1]:
-            module = getattr(plugins, name)
-        plugin = getattr(module, classname)
-        instantiated_plugins.append(plugin(**conf))
-    return instantiated_plugins

@@ -25,7 +25,7 @@ import uuid
 
 from ceilometer.storage.models import Trait
 
-import test_settings
+import test_setup
 
 
 def _randstrings(quantity, size):
@@ -36,7 +36,7 @@ t_text = Trait.TEXT_TYPE
 t_int = Trait.INT_TYPE
 t_float = Trait.FLOAT_TYPE
 t_datetime = Trait.DATETIME_TYPE
-num_events = test_settings.num_events
+num_events = test_setup.num_events
 
 events_pool = [
     'compute.instance.create.start',
@@ -63,9 +63,9 @@ events_pool = [
 
 # (TMaddox) thought: we can flex cardinality of trait strings with the pool
 # size configurations.
-strings_pool = _randstrings(test_settings.random_str_pool_size, 50)
+strings_pool = _randstrings(test_setup.random_str_pool_size, 50)
 extra_traits_pool = [(key, dtype, None) for (key, dtype) in itertools.product(
-                     _randstrings(test_settings.extra_traits_pool_size, 30),
+                     _randstrings(test_setup.extra_traits_pool_size, 30),
                      [t_text, t_datetime, t_int, t_float])]
 
 # Cardinality ratios for things that will scale with event quantity. Examples:
@@ -107,7 +107,7 @@ images = [uuid.uuid4()] + \
 
 instances = [uuid.uuid4()] + \
     ["%s" % str(uuid.uuid4()) for n in
-     range(int(test_settings.num_events * med_high_card))]
+     range(int(test_setup.num_events * med_high_card))]
 
 tenants = [uuid.uuid4()] + \
     ["%s" % str(uuid.uuid4()) for n in

@@ -32,12 +32,7 @@ class PluginBase:
         """
 
     @abc.abstractmethod
-    def after_batch(self):
-        """Called after a batch of events are stored.
-        """
-
-    @abc.abstractmethod
-    def after_log(self):
+    def publish_stats(self):
         """Called after each log interval.
         """
 

@@ -24,7 +24,7 @@ import time
 from base import PluginBase
 
 
-class GraphitePlugin(PluginBase):
+class GraphiteDriver(PluginBase):
     """Sends metrics to graphite.
     """
 
@@ -32,7 +32,7 @@ class GraphitePlugin(PluginBase):
                  graphite_resolution):
         """Configure the plugin with what graphite host to talk to and how.
         """
-        super(GraphitePlugin, self).__init__()
+        super(GraphiteDriver, self).__init__()
         self.host = graphite_host
         self.port = graphite_port
         self.path = graphite_path
@@ -50,11 +50,11 @@ class GraphitePlugin(PluginBase):
         sock.sendall(self.mask % (full_path, value, timestamp))
         sock.close()
 
-    def after_batch(self):
-        pass
+    def publish_stats(self, stats, **kwargs):
+        total, stored, batch_size, seconds = stats
+        self._send_to_graphite('total', total)
+        self._send_to_graphite('seconds', seconds)
+        self._send_to_graphite('docs_per_second', float(batch_size) / seconds)
 
-    def after_log(self):
-        pass
-
-    def after_test(self):
+    def after_test(self, totals, **kwargs):
         pass
