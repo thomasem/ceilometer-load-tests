@@ -25,6 +25,11 @@ from oslo.config import cfg
 
 from base import PluginBase
 
+cfg.CONF.set_override("verbose", True)
+cfg.CONF.set_override("logging_default_format_string",
+                      '%(process)d | %(asctime)s.%(msecs)03d |'
+                      ' %(name)s [-] %(instance)s%(message)s')
+
 LOG = log.getLogger(__name__)
 
 
@@ -38,12 +43,7 @@ class LogDriver(PluginBase):
         super(LogDriver, self).__init__()
         log.setup(log_name)
 
-        cfg.CONF.set_override("verbose", True)
-        cfg.CONF.set_override("logging_default_format_string",
-                              '%(process)d | %(asctime)s.%(msecs)03d |'
-                              ' %(pathname)s [-] %(instance)s%(message)s')
-
-    def publish_stats(self, stats, **kwargs):
+    def publish(self, stats, **kwargs):
         log_msg = ("Inserted %d events in %d sized batches in "
                    "%s\tTotal inserted: %d" %
                    (stats['stored'], stats['batch_size'],
@@ -65,6 +65,5 @@ class LogDriver(PluginBase):
         LOG.info(log_msg)
 
         avg_events_per_sec = total_events / total_time
-        log_msg = 'Average events per second: %s' % (
-                  (str(timedelta(seconds=avg_events_per_sec))))
+        log_msg = 'Average events per second: %s' % (avg_events_per_sec)
         LOG.info(log_msg)

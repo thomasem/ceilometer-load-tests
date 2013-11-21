@@ -18,7 +18,7 @@
 """Settings for Ceilometer load testing.
 """
 
-from plugins import LogDriver
+from plugins.log import LogDriver
 
 # Database settings
 # db_conn = "mysql://user:password@localhost/ceilometer?charset=utf8"

@@ -32,7 +32,7 @@ class PluginBase:
         """
 
     @abc.abstractmethod
-    def publish_stats(self):
+    def publish(self):
         """Called after each log interval.
         """
 

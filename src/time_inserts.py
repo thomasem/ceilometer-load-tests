@@ -30,7 +30,7 @@ cfg.CONF.set_override("connection", test_setup.db_conn, group='database')
 
 
 def invoke_plugins(method, *args, **kwargs):
-    for name, plugin in test_setup.plugins:
+    for name, plugin in test_setup.plugins.iteritems():
         getattr(plugin, method)(*args, **kwargs)
 
 if __name__ == "__main__":
@@ -52,8 +52,8 @@ if __name__ == "__main__":
             delta_history.append(total_seconds)
             stats = {'stored': publish_frequency * test_setup.batch_size,
                      'batch_size': test_setup.batch_size,
-                     'time': total_seconds,
-                     'total_inserted': x * test_setup.batch_size}
+                     'seconds': total_seconds,
+                     'total_stored': x * test_setup.batch_size}
             invoke_plugins('publish', stats)
             total_seconds = 0
         time.sleep(test_setup.rest_time)
