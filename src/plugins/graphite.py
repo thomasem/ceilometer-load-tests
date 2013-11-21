@@ -44,7 +44,7 @@ class GraphitePlugin(PluginBase):
         nearest to the resolution.
         """
         timestamp = round(time.time() / self.res) * self.res
-        full_path = "%s%s" % (self.path + metric)
+        full_path = "%s%s" % (self.path, metric)
         sock = socket.socket()
         sock.connect((self.host, self.port))
         sock.sendall(self.mask % (full_path, value, timestamp))
