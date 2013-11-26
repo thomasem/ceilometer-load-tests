@@ -79,12 +79,12 @@ if __name__ == "__main__":
 
     parser.add_argument('--name', '-n', type=str, required=True,
                         help="Name of the test; used for publishing stats.")
-    parser.add_argument('--events', '-e', type=int, required=True,
+    parser.add_argument('--events', '-e', type=int, default=100,
                         help="Number of events to insert during test")
     parser.add_argument('--batch', '-b', type=int, default=1,
                         help=("Number of events to generate before sending to "
                               "the database."))
-    parser.add_argument('--publish', '-p', type=int, required=True,
+    parser.add_argument('--publish', '-p', type=int, default=10,
                         help=("Number of batches to accumulate before"
                               "publishing stats."))
     parser.add_argument('--rest', '-r', type=int, default=0,
