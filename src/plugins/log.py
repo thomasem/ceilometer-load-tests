@@ -23,7 +23,7 @@ from datetime import timedelta
 from ceilometer.openstack.common import log
 from oslo.config import cfg
 
-from base import PluginBase
+import base
 
 cfg.CONF.set_override("verbose", True)
 cfg.CONF.set_override("logging_default_format_string",
@@ -33,7 +33,7 @@ cfg.CONF.set_override("logging_default_format_string",
 LOG = log.getLogger(__name__)
 
 
-class LogDriver(PluginBase):
+class LogDriver(base.PluginBase):
     """Sends metrics to graphite.
     """
 

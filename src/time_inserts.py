@@ -23,11 +23,11 @@ import time
 
 from ceilometer import storage
 from oslo.config import cfg
-from pymongo.errors import OperationFailure
+from pymongo import errors
 
 import plugins
-from pools import Pool
-from rando import RandomEventGenerator
+import pools
+import rando
 import test_setup
 
 cfg.CONF.set_override("connection", test_setup.db_conn, group='database')
@@ -40,7 +40,7 @@ def before_test(event_generator, plugins, conn, settings):
                 conn.admin.command('enablesharding', 'ceilometer')
                 conn.admin.command('shardcollection', 'ceilometer.event',
                                    key={'_id': 1})
-            except OperationFailure:
+            except errors.OperationFailure:
                 pass
 
 
@@ -79,20 +79,21 @@ if __name__ == "__main__":
 
     parser.add_argument('--name', '-n', type=str, required=True,
                         help="Name of the test; used for publishing stats.")
-    parser.add_argument('--events', '-e', type=int, default=100,
-                        help="Number of events to insert during test")
-    parser.add_argument('--batch', '-b', type=int, default=1,
+    parser.add_argument('--events', '-e', type=int, default=1000,
+                        help=("Number of events to insert during test. "
+                              "Default: 1000"))
+    parser.add_argument('--batch', '-b', type=int, default=100,
                         help=("Number of events to generate before sending to "
-                              "the database."))
-    parser.add_argument('--publish', '-p', type=int, default=10,
+                              "the database. Default: 100"))
+    parser.add_argument('--publish', '-p', type=int, default=2,
                         help=("Number of batches to accumulate before"
-                              "publishing stats."))
+                              "publishing stats. Default: 2"))
     parser.add_argument('--rest', '-r', type=int, default=0,
-                        help="Seconds to rest between batches.")
+                        help="Seconds to rest between batches. Default: 0")
 
     args = parser.parse_args()
-    pool = Pool(args.events, test_setup)
-    rand = RandomEventGenerator(pool, test_setup)
+    pool = pools.Pool(args.events, test_setup)
+    rand = rando.RandomEventGenerator(pool, test_setup)
     plugin_list = plugins.initialize_plugins(args.name, test_setup.plugins)
     conn = storage.get_connection(cfg.CONF)
 

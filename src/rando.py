@@ -24,8 +24,7 @@ import random
 import time
 import uuid
 
-from ceilometer.storage.models import Event
-from ceilometer.storage.models import Trait
+from ceilometer.storage import models
 
 
 class RandomEventGenerator(object):
@@ -75,7 +74,7 @@ class RandomEventGenerator(object):
             if not pool:
                 pool = [self._rand_type_map[dtype]()]
             traits.append(
-                Trait(key, dtype, random.choice(pool))
+                models.Trait(key, dtype, random.choice(pool))
             )
         return traits
 
@@ -95,9 +94,9 @@ class RandomEventGenerator(object):
         traits_list = [required_traits, self.pool.required_keys,
                        extra_traits]
         trait_models = self._make_traits(traits_list)
-        return Event(str(uuid.uuid4()),
-                     event_type,
-                     self._get_next_generated(), trait_models)
+        return models.Event(str(uuid.uuid4()),
+                            event_type,
+                            self._get_next_generated(), trait_models)
 
     def generate_random_events(self, quantity):
         """Generates N random events.
@@ -123,8 +122,8 @@ class RandomEventGenerator(object):
         self.timestamp_start = settings.timestamp_start or int(time.time())
         self.timestamp_end = settings.timestamp_end or (self.ts_start + 86400)
         self._rand_type_map = {
-            Trait.INT_TYPE: self._generate_random_integer,
-            Trait.FLOAT_TYPE: self._generate_random_float,
-            Trait.DATETIME_TYPE: self._generate_random_timestamp,
-            Trait.TEXT_TYPE: self._generate_random_text
+            models.Trait.INT_TYPE: self._generate_random_integer,
+            models.Trait.FLOAT_TYPE: self._generate_random_float,
+            models.Trait.DATETIME_TYPE: self._generate_random_timestamp,
+            models.Trait.TEXT_TYPE: self._generate_random_text
         }
