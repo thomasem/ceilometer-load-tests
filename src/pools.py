@@ -23,7 +23,7 @@ import random
 import string
 import uuid
 
-from ceilometer.storage.models import Trait
+from ceilometer.storage import models
 
 
 class Pool(object):
@@ -55,10 +55,10 @@ class Pool(object):
 
     def __init__(self, scale, settings):
 
-        t_text = Trait.TEXT_TYPE
-        t_int = Trait.INT_TYPE
-        t_float = Trait.FLOAT_TYPE
-        t_datetime = Trait.DATETIME_TYPE
+        t_text = models.Trait.TEXT_TYPE
+        t_int = models.Trait.INT_TYPE
+        t_float = models.Trait.FLOAT_TYPE
+        t_datetime = models.Trait.DATETIME_TYPE
 
         high_card = 0.088
         med_high_card = 0.011

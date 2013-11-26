@@ -20,10 +20,10 @@
 
 import statsd
 
-from base import PluginBase
+import base
 
 
-class StatsDDriver(PluginBase):
+class StatsDDriver(base.PluginBase):
     """Sends metrics to StatsD.
     """
 

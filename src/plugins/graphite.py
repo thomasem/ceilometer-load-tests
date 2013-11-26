@@ -21,10 +21,10 @@
 import socket
 import time
 
-from base import PluginBase
+import base
 
 
-class GraphiteDriver(PluginBase):
+class GraphiteDriver(base.PluginBase):
     """Sends metrics to graphite.
     """
 
