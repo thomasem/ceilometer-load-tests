@@ -15,7 +15,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-"""Graphite plugins for Ceilometer load testing.
+"""StatsD plugins for Ceilometer load testing.
 """
 
 import statsd
@@ -24,7 +24,7 @@ from base import PluginBase
 
 
 class StatsDDriver(PluginBase):
-    """Sends metrics to statsd.
+    """Sends metrics to StatsD.
     """
 
     def __init__(self, test_name, host='localhost', port=8125, sample_rate=1):
