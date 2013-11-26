@@ -37,11 +37,11 @@ class LogDriver(PluginBase):
     """Sends metrics to graphite.
     """
 
-    def __init__(self, log_name):
+    def __init__(self, name):
         """Configure the plugin with what graphite host to talk to and how.
         """
         super(LogDriver, self).__init__()
-        log.setup(log_name)
+        log.setup(name)
 
     def publish(self, stats, **kwargs):
         log_msg = ("Inserted %d events in %d sized batches in "

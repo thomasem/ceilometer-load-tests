@@ -34,17 +34,19 @@ class StatsDDriver(PluginBase):
         conn = statsd.Connection(
             host=statsd_host,
             port=statsd_port,
-            sample_rate=statsd_sample_rate
+            sample_rate=statsd_sample_rate,
+            debug=False
         )
         self.client = statsd.Client(name, conn)
         self.counter = self.client.get_client(class_=statsd.Counter)
+        self.gauge = self.client.get_client(class_=statsd.Gauge)
         self.timer = self.client.get_client(class_=statsd.Timer)
 
     def publish(self, stats, **kwargs):
-        total, batch_size, seconds = (stats['total_stored'],
-                                      stats['batch_size'], stats['seconds'])
+        total, stored, seconds = (stats['total_stored'],
+                                  stats['stored'], stats['seconds'])
         self.timer.send("batch_time", seconds)
-        self.timer.send("events_per_second", float(batch_size) / seconds)
+        self.gauge.send("events_per_second", stored / seconds)
         self.counter.increment("events", total)
 
     def after_test(self, totals, **kwargs):
