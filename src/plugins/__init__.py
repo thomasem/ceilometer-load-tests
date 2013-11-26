@@ -19,7 +19,7 @@
 """
 from graphite import GraphiteDriver
 from log import LogDriver
-from statsd import StatsDDriver
+from statsD import StatsDDriver
 
 mapping = {'log': LogDriver,
            'graphite': GraphiteDriver,

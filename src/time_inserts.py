@@ -26,13 +26,25 @@ from oslo.config import cfg
 from pymongo.errors import OperationFailure
 
 import plugins
+from pools import Pool
 from rando import RandomEventGenerator
 import test_setup
 
 cfg.CONF.set_override("connection", test_setup.db_conn, group='database')
 
 
-def run_test(event_generator, plugins, conn, settings):
+def before_test(event_generator, plugins, conn, settings):
+    if test_setup.db_conn.startswith('mongodb'):
+        if test_setup.ensure_sharding:
+            try:
+                conn.admin.command('enablesharding', 'ceilometer')
+                conn.admin.command('shardcollection', 'ceilometer.event',
+                                   key={'_id': 1})
+            except OperationFailure:
+                pass
+
+
+def run_test(event_generator, plugin_list, conn, settings):
     total_seconds = 0
     delta_history = []
     revs = settings.events / settings.batch
@@ -50,14 +62,17 @@ def run_test(event_generator, plugins, conn, settings):
                      'frequency': settings.publish,
                      'seconds': total_seconds,
                      'total_stored': x * settings.batch}
-            plugins.invoke('publish', plugins, stats)
+            plugins.invoke('publish', plugin_list, stats)
             total_seconds = 0
-        time.sleep(test_setup.rest_time)
+            time.sleep(settings.rest)
 
     totals = {'total_seconds': sum(delta_history),
               'total_events': settings.events}
-    plugins.invoke('after_test', plugins, totals)
+    plugins.invoke('after_test', plugin_list, totals)
 
+
+def after_test(event_generator, plugins, conn, settings):
+    pass
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Time Inserting Events")
@@ -67,8 +82,8 @@ if __name__ == "__main__":
     parser.add_argument('--events', '-e', type=int, required=True,
                         help="Number of events to insert during test")
     parser.add_argument('--batch', '-b', type=int, default=1,
-                        help=("Number of events to generate before sending to"
-                              "the driver."))
+                        help=("Number of events to generate before sending to "
+                              "the database."))
     parser.add_argument('--publish', '-p', type=int, required=True,
                         help=("Number of batches to accumulate before"
                               "publishing stats."))
@@ -76,19 +91,10 @@ if __name__ == "__main__":
                         help="Seconds to rest between batches.")
 
     args = parser.parse_args()
-
-    rand = RandomEventGenerator(**test_setup.__dict__)
+    pool = Pool(args.events, test_setup)
+    rand = RandomEventGenerator(pool, test_setup)
     plugin_list = plugins.initialize_plugins(args.name, test_setup.plugins)
     conn = storage.get_connection(cfg.CONF)
 
-    # Before test do this.
-    if test_setup.db_conn.startswith('mongodb'):
-        if test_setup.ensure_sharding:
-            try:
-                conn.admin.command('enablesharding', 'ceilometer')
-                conn.admin.command('shardcollection', 'ceilometer.event',
-                                   key={'_id': 1})
-            except OperationFailure:
-                pass
-
+    before_test(rand, plugin_list, conn, args)
     run_test(rand, plugin_list, conn, args)

@@ -28,15 +28,15 @@ class GraphiteDriver(PluginBase):
     """Sends metrics to graphite.
     """
 
-    def __init__(self, graphite_host, graphite_port, graphite_path,
-                 graphite_resolution):
+    def __init__(self, test_name, host="localhost", port=2003,
+                 path="ceilometer-load-test", resolution=60):
         """Configure the plugin with what graphite host to talk to and how.
         """
         super(GraphiteDriver, self).__init__()
-        self.host = graphite_host
-        self.port = graphite_port
-        self.path = graphite_path
-        self.res = graphite_resolution
+        self.host = host
+        self.port = port
+        self.path = path
+        self.res = resolution
         self.mask = "%s %s %d\n"
 
     def _send_to_graphite(self, metric, value):

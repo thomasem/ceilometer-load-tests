@@ -112,19 +112,16 @@ class RandomEventGenerator(object):
         """
         return self._create_random_event()
 
-    def __init__(self, pool, rand_int_start=0, rand_int_range=100,
-                 timestamp_start=None, timestamp_end=None,
-                 extra_traits_per_event=20, message_order_integrity=3,
-                 rand_generated_potential=10, **kwargs):
+    def __init__(self, pool, settings):
         self.pool = pool
         self.last_generated = datetime.datetime.utcnow()
-        self.rand_int_start = rand_int_start
-        self.rand_int_range = rand_int_range
-        self.extra_traits_per_event = extra_traits_per_event
-        self.rand_generated_potential = rand_generated_potential
-        self.message_order_integrity = message_order_integrity
-        self.timestamp_start = timestamp_start or int(time.time())
-        self.timestamp_end = timestamp_end or (self.ts_start + 86400)
+        self.rand_int_start = settings.rand_int_start
+        self.rand_int_range = settings.rand_int_range
+        self.extra_traits_per_event = settings.extra_traits_per_event
+        self.rand_generated_potential = settings.rand_generated_potential
+        self.message_order_integrity = settings.message_order_integrity
+        self.timestamp_start = settings.timestamp_start or int(time.time())
+        self.timestamp_end = settings.timestamp_end or (self.ts_start + 86400)
         self._rand_type_map = {
             Trait.INT_TYPE: self._generate_random_integer,
             Trait.FLOAT_TYPE: self._generate_random_float,

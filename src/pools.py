@@ -53,19 +53,19 @@ class Pool(object):
         'image.update'
     ]
 
-    def __init__(self, settings):
+    def __init__(self, scale, settings):
 
         t_text = Trait.TEXT_TYPE
         t_int = Trait.INT_TYPE
         t_float = Trait.FLOAT_TYPE
         t_datetime = Trait.DATETIME_TYPE
-        num_events = settings.num_events
 
         high_card = 0.088
         med_high_card = 0.011
         med_card = 0.0011
         low_card = 0.000088
 
+        self.scale = scale
         # (TMaddox) thought: we can flex cardinality of trait strings with the
         # pool size configurations.
         self.strings_pool = self._randstrings(settings.random_str_pool_size,
@@ -103,23 +103,23 @@ class Pool(object):
         # scales, so set at least one.
         images = [uuid.uuid4()] + \
             ["%s" % str(uuid.uuid4()) for (o, n) in
-             itertools.product(rax_options, range(int(num_events * low_card)))]
+             itertools.product(rax_options, range(int(self.scale * low_card)))]
 
         instances = [uuid.uuid4()] + \
             ["%s" % str(uuid.uuid4()) for n in
-             range(int(settings.num_events * med_high_card))]
+             range(int(self.scale * med_high_card))]
 
         tenants = [uuid.uuid4()] + \
             ["%s" % str(uuid.uuid4()) for n in
-             range(int(num_events * med_card))]
+             range(int(self.scale * med_card))]
 
         users = [uuid.uuid4()] + \
             ["%s" % str(uuid.uuid4()) for n in
-             range(int(num_events * med_high_card))]
+             range(int(self.scale * med_high_card))]
 
         request_ids = [uuid.uuid4()] + \
             ["req-%s" % uuid.uuid4() for x in
-             range(int(num_events * high_card))]
+             range(int(self.scale * high_card))]
 
         self.compute_keys = [
             ('hostname', t_text, hosts),
