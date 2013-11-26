@@ -18,46 +18,83 @@
 """Ceilometer load testing application.
 """
 
+import argparse
 import time
 
 from ceilometer import storage
 from oslo.config import cfg
+from pymongo.errors import OperationFailure
 
+import plugins
+from pools import Pool
 from rando import RandomEventGenerator
 import test_setup
 
 cfg.CONF.set_override("connection", test_setup.db_conn, group='database')
 
 
-def invoke_plugins(method, *args, **kwargs):
-    for name, plugin in test_setup.plugins.iteritems():
-        getattr(plugin, method)(*args, **kwargs)
+def before_test(event_generator, plugins, conn, settings):
+    if test_setup.db_conn.startswith('mongodb'):
+        if test_setup.ensure_sharding:
+            try:
+                conn.admin.command('enablesharding', 'ceilometer')
+                conn.admin.command('shardcollection', 'ceilometer.event',
+                                   key={'_id': 1})
+            except OperationFailure:
+                pass
 
-if __name__ == "__main__":
-    conn = storage.get_connection(cfg.CONF)
-    rand = RandomEventGenerator(**test_setup.__dict__)
+
+def run_test(event_generator, plugin_list, conn, settings):
     total_seconds = 0
     delta_history = []
-
-    revs = test_setup.num_events / test_setup.batch_size
-    publish_frequency = test_setup.publish_frequency
+    revs = settings.events / settings.batch
+    publish_frequency = settings.publish
     for x in range(1, revs + 1):
+        events = event_generator.generate_random_events(settings.batch)
         start = time.time()
-        conn.record_events(
-            rand.generate_random_events(test_setup.batch_size))
+        conn.record_events(events)
         end = time.time()
         total_seconds += end - start
 
         if x % publish_frequency == 0:
             delta_history.append(total_seconds)
-            stats = {'stored': publish_frequency * test_setup.batch_size,
-                     'batch_size': test_setup.batch_size,
+            stats = {'stored': publish_frequency * settings.batch,
+                     'frequency': settings.publish,
                      'seconds': total_seconds,
-                     'total_stored': x * test_setup.batch_size}
-            invoke_plugins('publish', stats)
+                     'total_stored': x * settings.batch}
+            plugins.invoke('publish', plugin_list, stats)
             total_seconds = 0
-        time.sleep(test_setup.rest_time)
+            time.sleep(settings.rest)
 
     totals = {'total_seconds': sum(delta_history),
-              'total_events': test_setup.num_events}
-    invoke_plugins('after_test', totals)
+              'total_events': settings.events}
+    plugins.invoke('after_test', plugin_list, totals)
+
+
+def after_test(event_generator, plugins, conn, settings):
+    pass
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Time Inserting Events")
+
+    parser.add_argument('--name', '-n', type=str, required=True,
+                        help="Name of the test; used for publishing stats.")
+    parser.add_argument('--events', '-e', type=int, default=100,
+                        help="Number of events to insert during test")
+    parser.add_argument('--batch', '-b', type=int, default=1,
+                        help=("Number of events to generate before sending to "
+                              "the database."))
+    parser.add_argument('--publish', '-p', type=int, default=10,
+                        help=("Number of batches to accumulate before"
+                              "publishing stats."))
+    parser.add_argument('--rest', '-r', type=int, default=0,
+                        help="Seconds to rest between batches.")
+
+    args = parser.parse_args()
+    pool = Pool(args.events, test_setup)
+    rand = RandomEventGenerator(pool, test_setup)
+    plugin_list = plugins.initialize_plugins(args.name, test_setup.plugins)
+    conn = storage.get_connection(cfg.CONF)
+
+    before_test(rand, plugin_list, conn, args)
+    run_test(rand, plugin_list, conn, args)

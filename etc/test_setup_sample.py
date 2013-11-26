@@ -18,19 +18,12 @@
 """Settings for Ceilometer load testing.
 """
 
-from plugins.log import LogDriver
-
 # Database settings
 # db_conn = "mysql://user:password@localhost/ceilometer?charset=utf8"
 db_conn = "mongodb://localhost:27017/ceilometer"
+ensure_sharding = False
 
-# Tester settings
-num_events = 500000             # Number of events to try and store during test
-batch_size = 1000               # Events per storage call
-publish_frequency = 1           # Number of batches, not events
-rest_time = 0                   # Time to rest between batches
-
-# Randomizer settings
+# Pool settings
 extra_traits_per_event = 50     # Additional random traits to append
 extra_traits_pool_size = 50     # Extra traits for messages
 random_str_pool_size = 100      # Extra strings for additional random traits
@@ -43,6 +36,13 @@ message_order_integrity = 5     # Rank of integrity for message ordering (1-5)
 
 # Plugin settings
 # We'll simply do this until we start using Stevedore for extension management.
-plugins = {
-    'log': LogDriver("Ceilometer Load Test"),
-}
+# plugins = {
+#     'statsd': {
+#         'host': 'localhost',
+#         'port': 8125,
+#         'sample_rate': 1
+#     },
+#     'log': {}
+# }
+
+plugins = {'log': {}}

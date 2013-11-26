@@ -37,17 +37,15 @@ class LogDriver(PluginBase):
     """Sends metrics to graphite.
     """
 
-    def __init__(self, log_name):
+    def __init__(self, test_name, *args, **kwargs):
         """Configure the plugin with what graphite host to talk to and how.
         """
         super(LogDriver, self).__init__()
-        log.setup(log_name)
+        log.setup(test_name)
 
     def publish(self, stats, **kwargs):
-        log_msg = ("Inserted %d events in %d sized batches in "
-                   "%s\tTotal inserted: %d" %
-                   (stats['stored'], stats['batch_size'],
-                    str(timedelta(seconds=stats['seconds'])),
+        log_msg = ("Inserted %d events in %s\tTotal inserted: %d" %
+                   (stats['stored'], str(timedelta(seconds=stats['seconds'])),
                     stats['total_stored']))
         LOG.info(log_msg)
 
