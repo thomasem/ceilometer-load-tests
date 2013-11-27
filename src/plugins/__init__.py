@@ -17,13 +17,13 @@
 # under the License.
 """Plugins module for Ceilometer load testing.
 """
-from graphite import GraphiteDriver
-from log import LogDriver
-from statsD import StatsDDriver
+import graphite
+import log
+import statsD
 
-mapping = {'log': LogDriver,
-           'graphite': GraphiteDriver,
-           'statsd': StatsDDriver}
+mapping = {'log': log.LogDriver,
+           'graphite': graphite.GraphiteDriver,
+           'statsd': statsD.StatsDDriver}
 
 
 def initialize_plugins(test_name, plugin_conf):
