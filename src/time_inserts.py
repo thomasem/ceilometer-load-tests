@@ -91,10 +91,9 @@ if __name__ == "__main__":
     parser.add_argument('--rest', '-r', type=int, default=0,
                         help="Seconds to rest between batches. Default: 0")
     parser.add_argument('--store', '-s', type=str, default=None,
-                        help=("Filename to store pool dump with. 'test01' "
-                              "would be saved as 'test01.dump'"))
+                        help="Filename to store pool dump with.")
     parser.add_argument('--pool', '-f', type=str, default=None,
-                        help="Input file for a randomizer pool dump file")
+                        help="Input filename for a randomizer pool dump file.")
 
     args = parser.parse_args()
     pool = pools.Pool.from_snapshot(args.pool) if args.pool else \
