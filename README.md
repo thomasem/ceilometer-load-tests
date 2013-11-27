@@ -40,7 +40,8 @@ After you have this configuration set to your liking, with the ```db_conn``` URI
 ```
 $ python time_inserts.py -h
 usage: time_inserts.py [-h] --name NAME [--events EVENTS] [--batch BATCH]
-                       [--publish PUBLISH] [--rest REST]
+                       [--publish PUBLISH] [--rest REST] [--store STORE]
+                       [--pool POOL]
 
 Time Inserting Events
 
@@ -56,6 +57,9 @@ optional arguments:
                         Number of batches to accumulate beforepublishing
                         stats. Default: 2
   --rest REST, -r REST  Seconds to rest between batches. Default: 0
+  --store STORE, -s STORE
+                        Filename to store pool dump with.
+  --pool POOL, -f POOL  Input filename for a randomizer pool dump file.
 ```
 
 **Example output from running script**:
