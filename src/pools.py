@@ -19,6 +19,7 @@
 """
 
 import itertools
+import pickle
 import random
 import string
 import uuid
@@ -53,7 +54,7 @@ class Pool(object):
         'image.update'
     ]
 
-    def __init__(self, scale, settings):
+    def __init__(self, scale, settings, store=None):
 
         t_text = models.Trait.TEXT_TYPE
         t_int = models.Trait.INT_TYPE
@@ -164,8 +165,22 @@ class Pool(object):
             ('priority', t_text, priorities)
         ]
 
+        if store:
+            self.to_snapshot(store)
+
     @staticmethod
     def _randstrings(quantity, size):
         return [''.join(random.choice(string.ascii_letters)
                         for n in range(size))
                 for n in range(quantity)]
+
+    def to_snapshot(self, filename):
+        with open(filename, 'w') as f:
+            pickle.dump(self, f)
+
+    @staticmethod
+    def from_snapshot(filename):
+        obj = None
+        with open(filename, 'r') as f:
+            obj = pickle.load(f)
+        return obj
