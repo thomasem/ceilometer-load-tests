@@ -42,6 +42,7 @@ class StatsDDriver(base.PluginBase):
                                   stats['stored'], stats['seconds'])
         self.timer.send("batch_time", seconds)
         self.gauge.send("events_per_second", stored / seconds)
+        self.gauge.send("total_events", total)
         self.counter.increment("events", stored)
 
     def after_test(self, totals, **kwargs):
