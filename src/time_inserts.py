@@ -46,24 +46,28 @@ def before_test(event_generator, plugins, conn, settings):
 
 def run_test(event_generator, plugin_list, conn, settings):
     total_seconds = 0
+    total_failed = 0
     delta_history = []
     revs = settings.events / settings.batch
     publish_frequency = settings.publish
     for x in range(1, revs + 1):
         events = event_generator.generate_random_events(settings.batch)
         start = time.time()
-        conn.record_events(events)
+        failed = len(conn.record_events(events))
         end = time.time()
         total_seconds += end - start
+        total_failed += failed
 
         if x % publish_frequency == 0:
             delta_history.append(total_seconds)
             stats = {'stored': publish_frequency * settings.batch,
                      'frequency': settings.publish,
                      'seconds': total_seconds,
-                     'total_stored': x * settings.batch}
+                     'total_stored': x * settings.batch,
+                     'failed': total_failed}
             plugins.invoke('publish', plugin_list, stats)
             total_seconds = 0
+            total_failed = 0
             time.sleep(settings.rest)
 
     totals = {'total_seconds': sum(delta_history),

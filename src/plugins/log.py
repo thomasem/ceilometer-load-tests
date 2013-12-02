@@ -49,6 +49,10 @@ class LogDriver(base.PluginBase):
                     stats['total_stored']))
         LOG.info(log_msg)
 
+        if stats['failed'] > 0:
+            log_msg = "%d failed events" % (stats['failed'])
+            LOG.info(log_msg)
+
     def after_test(self, totals, **kwargs):
         total_events = totals['total_events']
         total_time = totals['total_seconds']
