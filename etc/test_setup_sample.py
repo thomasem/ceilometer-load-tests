@@ -21,7 +21,6 @@
 # Database settings
 # db_conn = "mysql://user:password@localhost/ceilometer?charset=utf8"
 db_conn = "mongodb://localhost:27017/ceilometer"
-ensure_sharding = False
 
 # Pool settings
 extra_traits_per_event = 50     # Additional random traits to append
