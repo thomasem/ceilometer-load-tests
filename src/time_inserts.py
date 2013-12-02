@@ -35,7 +35,9 @@ cfg.CONF.set_override("connection", test_setup.db_conn, group='database')
 
 def before_test(event_generator, plugins, conn, settings):
     if test_setup.db_conn.startswith('mongodb'):
-        if test_setup.ensure_sharding:
+        conn.write_concern = {'w': settings.write_concern,
+                              'j': settings.journaling}
+        if settings.sharding:
             try:
                 conn.admin.command('enablesharding', 'ceilometer')
                 conn.admin.command('shardcollection', 'ceilometer.event',
@@ -98,6 +100,15 @@ if __name__ == "__main__":
                         help="Filename to store pool dump with.")
     parser.add_argument('--pool', '-f', type=str, default=None,
                         help="Input filename for a randomizer pool dump file.")
+    parser.add_arguments('--journaling', '-j', action='store_true',
+                         help=("Enable journaling, if the datastore supports"
+                               " it."))
+    parser.add_arguments('--write_concern', '-w', type=int, default=0,
+                         help=("Write concern level, if the datastore supports"
+                               " it. Default: 0"))
+    parser.add_arguments('--sharding', action='store_true',
+                         help=("Set to enforce a sharded datastore, if "
+                               "supported."))
 
     args = parser.parse_args()
     pool = pools.Pool.from_snapshot(args.pool) if args.pool else \
