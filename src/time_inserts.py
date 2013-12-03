@@ -35,7 +35,9 @@ cfg.CONF.set_override("connection", test_setup.db_conn, group='database')
 
 def before_test(event_generator, plugins, conn, settings):
     if test_setup.db_conn.startswith('mongodb'):
-        if test_setup.ensure_sharding:
+        conn.write_concern = {'w': settings.write_concern,
+                              'j': settings.journaling}
+        if settings.sharding:
             try:
                 conn.admin.command('enablesharding', 'ceilometer')
                 conn.admin.command('shardcollection', 'ceilometer.event',
@@ -46,24 +48,28 @@ def before_test(event_generator, plugins, conn, settings):
 
 def run_test(event_generator, plugin_list, conn, settings):
     total_seconds = 0
+    total_failed = 0
     delta_history = []
     revs = settings.events / settings.batch
     publish_frequency = settings.publish
     for x in range(1, revs + 1):
         events = event_generator.generate_random_events(settings.batch)
         start = time.time()
-        conn.record_events(events)
+        failed = conn.record_events(events)
         end = time.time()
         total_seconds += end - start
+        total_failed += len(failed)
 
         if x % publish_frequency == 0:
             delta_history.append(total_seconds)
             stats = {'stored': publish_frequency * settings.batch,
                      'frequency': settings.publish,
                      'seconds': total_seconds,
-                     'total_stored': x * settings.batch}
+                     'total_stored': x * settings.batch,
+                     'failed': total_failed}
             plugins.invoke('publish', plugin_list, stats)
             total_seconds = 0
+            total_failed = 0
             time.sleep(settings.rest)
 
     totals = {'total_seconds': sum(delta_history),
@@ -94,6 +100,14 @@ if __name__ == "__main__":
                         help="Filename to store pool dump with.")
     parser.add_argument('--pool', '-f', type=str, default=None,
                         help="Input filename for a randomizer pool dump file.")
+    parser.add_argument('--journaling', '-j', action='store_true',
+                        help=("Enable journaling, if the datastore supports"
+                              " it."))
+    parser.add_argument('--write_concern', '-w', type=int, default=1,
+                        help=("Write concern level, if the datastore supports"
+                              " it. Default: 1"))
+    parser.add_argument('--sharding', action='store_true',
+                        help="Enforce a sharded datastore, if supported.")
 
     args = parser.parse_args()
     pool = pools.Pool.from_snapshot(args.pool) if args.pool else \

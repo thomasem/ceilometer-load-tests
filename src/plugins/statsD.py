@@ -38,12 +38,15 @@ class StatsDDriver(base.PluginBase):
         self.timer = self.client.get_client(class_=statsd.Timer)
 
     def publish(self, stats, **kwargs):
-        total, stored, seconds = (stats['total_stored'],
-                                  stats['stored'], stats['seconds'])
+        total, stored, seconds, failed = (stats['total_stored'],
+                                          stats['stored'], stats['seconds'],
+                                          stats['failed'])
         self.timer.send("batch_time", seconds)
+        self.timer.send("seconds_per_event", seconds / stored)
         self.gauge.send("events_per_second", stored / seconds)
         self.gauge.send("total_events", total)
         self.counter.increment("events", stored)
+        self.counter.increment("failed_events", failed)
 
     def after_test(self, totals, **kwargs):
         pass

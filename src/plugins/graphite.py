@@ -51,12 +51,15 @@ class GraphiteDriver(base.PluginBase):
         sock.close()
 
     def publish(self, stats, **kwargs):
-        total, batch_size, seconds = (stats['total_stored'],
-                                      stats['batch_size'], stats['seconds'])
+        total, batch_size, seconds, failed = (stats['total_stored'],
+                                              stats['batch_size'],
+                                              stats['seconds'],
+                                              stats['failed'])
         self._send_to_graphite('total', total)
         self._send_to_graphite('seconds', seconds)
         self._send_to_graphite('events_per_second',
                                float(batch_size) / seconds)
+        self._send_to_graphite('failed_events', failed)
 
     def after_test(self, totals, **kwargs):
         pass
