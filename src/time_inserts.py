@@ -55,10 +55,10 @@ def run_test(event_generator, plugin_list, conn, settings):
     for x in range(1, revs + 1):
         events = event_generator.generate_random_events(settings.batch)
         start = time.time()
-        failed = len(conn.record_events(events))
+        failed = conn.record_events(events)
         end = time.time()
         total_seconds += end - start
-        total_failed += failed
+        total_failed += len(failed)
 
         if x % publish_frequency == 0:
             delta_history.append(total_seconds)
