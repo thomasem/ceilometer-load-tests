@@ -104,9 +104,9 @@ if __name__ == "__main__":
                         action='store_true',
                         help=("Enable journaling, if the datastore supports"
                               " it. Default: False"))
-    parser.add_argument('--write_concern', '-w', type=int, default=0,
+    parser.add_argument('--write_concern', '-w', type=int, default=1,
                         help=("Write concern level, if the datastore supports"
-                              " it. Default: 0"))
+                              " it. Default: 1"))
     parser.add_argument('--sharding', default=False, action='store_true',
                         help=("Set to enforce a sharded datastore, if "
                               "supported. Default: False"))
