@@ -41,7 +41,8 @@ After you have this configuration set to your liking, with the ```db_conn``` URI
 $ python time_inserts.py -h
 usage: time_inserts.py [-h] --name NAME [--events EVENTS] [--batch BATCH]
                        [--publish PUBLISH] [--rest REST] [--store STORE]
-                       [--pool POOL]
+                       [--pool POOL] [--journaling]
+                       [--write_concern WRITE_CONCERN] [--sharding]
 
 Time Inserting Events
 
@@ -60,36 +61,56 @@ optional arguments:
   --store STORE, -s STORE
                         Filename to store pool dump with.
   --pool POOL, -f POOL  Input filename for a randomizer pool dump file.
+  --journaling, -j      Enable journaling, if the datastore supports it.
+  --write_concern WRITE_CONCERN, -w WRITE_CONCERN
+                        Write concern level, if the datastore supports it.
+                        Default: 1
+  --sharding            Enforce a sharded datastore, if supported.
 ```
 
 **Example output from running script**:
 ```
 $ python time_inserts.py -n "thomas test 11" -e 1000
-17719 | 2013-11-26 19:42:37.416 | ceilometer.storage.impl_mongodb [-] connecting to MongoDB on mongodb://localhost:27017/ceilometer
-17719 | 2013-11-26 19:42:38.397 | statsd.client.Timer [-] thomas test 11.batch_time: 750.46086311ms
-17719 | 2013-11-26 19:42:38.397 | statsd.client.Gauge [-] thomas test 11.events_per_second: 266.502904855
-17719 | 2013-11-26 19:42:38.397 | statsd.client.Counter [-] thomas test 11.events: 200
-17719 | 2013-11-26 19:42:38.397 | plugins.log [-] Inserted 200 events in 0:00:00.750461	Total inserted: 200
-17719 | 2013-11-26 19:42:39.314 | statsd.client.Timer [-] thomas test 11.batch_time: 745.11122704ms
-17719 | 2013-11-26 19:42:39.314 | statsd.client.Gauge [-] thomas test 11.events_per_second: 268.416301813
-17719 | 2013-11-26 19:42:39.314 | statsd.client.Counter [-] thomas test 11.events: 200
-17719 | 2013-11-26 19:42:39.315 | plugins.log [-] Inserted 200 events in 0:00:00.745111	Total inserted: 400
-17719 | 2013-11-26 19:42:40.001 | statsd.client.Timer [-] thomas test 11.batch_time: 510.25605202ms
-17719 | 2013-11-26 19:42:40.001 | statsd.client.Gauge [-] thomas test 11.events_per_second: 391.960074181
-17719 | 2013-11-26 19:42:40.001 | statsd.client.Counter [-] thomas test 11.events: 200
-17719 | 2013-11-26 19:42:40.001 | plugins.log [-] Inserted 200 events in 0:00:00.510256	Total inserted: 600
-17719 | 2013-11-26 19:42:40.738 | statsd.client.Timer [-] thomas test 11.batch_time: 540.01021385ms
-17719 | 2013-11-26 19:42:40.738 | statsd.client.Gauge [-] thomas test 11.events_per_second: 370.363365117
-17719 | 2013-11-26 19:42:40.738 | statsd.client.Counter [-] thomas test 11.events: 200
-17719 | 2013-11-26 19:42:40.739 | plugins.log [-] Inserted 200 events in 0:00:00.540010	Total inserted: 800
-17719 | 2013-11-26 19:42:41.494 | statsd.client.Timer [-] thomas test 11.batch_time: 575.04892349ms
-17719 | 2013-11-26 19:42:41.494 | statsd.client.Gauge [-] thomas test 11.events_per_second: 347.796494923
-17719 | 2013-11-26 19:42:41.494 | statsd.client.Counter [-] thomas test 11.events: 200
-17719 | 2013-11-26 19:42:41.494 | plugins.log [-] Inserted 200 events in 0:00:00.575049	Total inserted: 1000
-17719 | 2013-11-26 19:42:41.495 | plugins.log [-] ===========================================================================
-17719 | 2013-11-26 19:42:41.495 | plugins.log [-] Total time to insert 1000 documents: 0:00:03.120887
-17719 | 2013-11-26 19:42:41.495 | plugins.log [-] Average time per event: 0:00:00.003121
-17719 | 2013-11-26 19:42:41.495 | plugins.log [-] Average events per second: 320.421697562
+11655 | 2013-12-03 22:17:20.050 | ceilometer.storage.impl_mongodb [-] Connecting to MongoDB on [('localhost', 27017)]
+11655 | 2013-12-03 22:17:20.874 | statsd.client.Timer [-] tom_test_17.batch_time: 564.90397453ms
+11655 | 2013-12-03 22:17:20.875 | statsd.client.Timer [-] tom_test_17.seconds_per_event: 2.82451987ms
+11655 | 2013-12-03 22:17:20.875 | statsd.client.Gauge [-] tom_test_17.events_per_second: 354.042472732
+11655 | 2013-12-03 22:17:20.875 | statsd.client.Gauge [-] tom_test_17.total_events: 200
+11655 | 2013-12-03 22:17:20.875 | statsd.client.Counter [-] tom_test_17.events: 200
+11655 | 2013-12-03 22:17:20.875 | statsd.client.Counter [-] tom_test_17.failed_events: 0
+11655 | 2013-12-03 22:17:20.875 | plugins.log [-] Inserted 200 events in 0:00:00.564904	Total inserted: 200
+11655 | 2013-12-03 22:17:21.617 | statsd.client.Timer [-] tom_test_17.batch_time: 547.08909988ms
+11655 | 2013-12-03 22:17:21.617 | statsd.client.Timer [-] tom_test_17.seconds_per_event: 2.73544550ms
+11655 | 2013-12-03 22:17:21.617 | statsd.client.Gauge [-] tom_test_17.events_per_second: 365.571165725
+11655 | 2013-12-03 22:17:21.617 | statsd.client.Gauge [-] tom_test_17.total_events: 400
+11655 | 2013-12-03 22:17:21.617 | statsd.client.Counter [-] tom_test_17.events: 200
+11655 | 2013-12-03 22:17:21.618 | statsd.client.Counter [-] tom_test_17.failed_events: 0
+11655 | 2013-12-03 22:17:21.618 | plugins.log [-] Inserted 200 events in 0:00:00.547089	Total inserted: 400
+11655 | 2013-12-03 22:17:22.391 | statsd.client.Timer [-] tom_test_17.batch_time: 534.33895111ms
+11655 | 2013-12-03 22:17:22.391 | statsd.client.Timer [-] tom_test_17.seconds_per_event: 2.67169476ms
+11655 | 2013-12-03 22:17:22.392 | statsd.client.Gauge [-] tom_test_17.events_per_second: 374.294255705
+11655 | 2013-12-03 22:17:22.392 | statsd.client.Gauge [-] tom_test_17.total_events: 600
+11655 | 2013-12-03 22:17:22.392 | statsd.client.Counter [-] tom_test_17.events: 200
+11655 | 2013-12-03 22:17:22.392 | statsd.client.Counter [-] tom_test_17.failed_events: 0
+11655 | 2013-12-03 22:17:22.392 | plugins.log [-] Inserted 200 events in 0:00:00.534339	Total inserted: 600
+11655 | 2013-12-03 22:17:23.210 | statsd.client.Timer [-] tom_test_17.batch_time: 623.27718735ms
+11655 | 2013-12-03 22:17:23.210 | statsd.client.Timer [-] tom_test_17.seconds_per_event: 3.11638594ms
+11655 | 2013-12-03 22:17:23.210 | statsd.client.Gauge [-] tom_test_17.events_per_second: 320.884518253
+11655 | 2013-12-03 22:17:23.210 | statsd.client.Gauge [-] tom_test_17.total_events: 800
+11655 | 2013-12-03 22:17:23.210 | statsd.client.Counter [-] tom_test_17.events: 200
+11655 | 2013-12-03 22:17:23.211 | statsd.client.Counter [-] tom_test_17.failed_events: 0
+11655 | 2013-12-03 22:17:23.211 | plugins.log [-] Inserted 200 events in 0:00:00.623277	Total inserted: 800
+11655 | 2013-12-03 22:17:23.964 | statsd.client.Timer [-] tom_test_17.batch_time: 561.24114990ms
+11655 | 2013-12-03 22:17:23.964 | statsd.client.Timer [-] tom_test_17.seconds_per_event: 2.80620575ms
+11655 | 2013-12-03 22:17:23.964 | statsd.client.Gauge [-] tom_test_17.events_per_second: 356.353057923
+11655 | 2013-12-03 22:17:23.964 | statsd.client.Gauge [-] tom_test_17.total_events: 1000
+11655 | 2013-12-03 22:17:23.964 | statsd.client.Counter [-] tom_test_17.events: 200
+11655 | 2013-12-03 22:17:23.965 | statsd.client.Counter [-] tom_test_17.failed_events: 0
+11655 | 2013-12-03 22:17:23.965 | plugins.log [-] Inserted 200 events in 0:00:00.561241	Total inserted: 1000
+11655 | 2013-12-03 22:17:23.965 | plugins.log [-] ===========================================================================
+11655 | 2013-12-03 22:17:23.965 | plugins.log [-] Total time to insert 1000 documents: 0:00:02.830850
+11655 | 2013-12-03 22:17:23.965 | plugins.log [-] Average time per event: 0:00:00.002831
+11655 | 2013-12-03 22:17:23.966 | plugins.log [-] Average events per second: 353.250745129
 ```
 
 *Note: Please open up a GitHub issue for any problems you run into.*
