@@ -100,16 +100,14 @@ if __name__ == "__main__":
                         help="Filename to store pool dump with.")
     parser.add_argument('--pool', '-f', type=str, default=None,
                         help="Input filename for a randomizer pool dump file.")
-    parser.add_argument('--journaling', '-j', default=False,
-                        action='store_true',
+    parser.add_argument('--journaling', '-j', action='store_true',
                         help=("Enable journaling, if the datastore supports"
-                              " it. Default: False"))
+                              " it."))
     parser.add_argument('--write_concern', '-w', type=int, default=1,
                         help=("Write concern level, if the datastore supports"
                               " it. Default: 1"))
-    parser.add_argument('--sharding', default=False, action='store_true',
-                        help=("Set to enforce a sharded datastore, if "
-                              "supported. Default: False"))
+    parser.add_argument('--sharding', action='store_true',
+                        help="Enforce a sharded datastore, if supported.")
 
     args = parser.parse_args()
     pool = pools.Pool.from_snapshot(args.pool) if args.pool else \
