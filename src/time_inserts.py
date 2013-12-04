@@ -39,9 +39,9 @@ def before_test(event_generator, plugins, conn, settings):
                               'j': settings.journaling}
         if settings.sharding:
             try:
-                conn.admin.command('enablesharding', 'ceilometer')
-                conn.admin.command('shardcollection', 'ceilometer.event',
-                                   key={'_id': "hashed"})
+                conn.conn.admin.command('enablesharding', 'ceilometer')
+                conn.conn.admin.command('shardcollection', 'ceilometer.event',
+                                        key={'_id': "hashed"})
             except errors.OperationFailure:
                 pass
 
