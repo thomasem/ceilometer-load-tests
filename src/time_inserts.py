@@ -41,7 +41,7 @@ def before_test(event_generator, plugins, conn, settings):
             try:
                 conn.admin.command('enablesharding', 'ceilometer')
                 conn.admin.command('shardcollection', 'ceilometer.event',
-                                   key={'_id': 1})
+                                   key={'_id': "hashed"})
             except errors.OperationFailure:
                 pass
 
