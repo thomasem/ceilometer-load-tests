@@ -8,7 +8,14 @@ Tracking tests here: https://etherpad.openstack.org/p/ceilometer-data-store-scal
 Getting Started (hopefully fast :)
 ----------------
 
-First, you need to install your desired branch of Ceilometer to test. We have a fork set aside for instrumentation here: https://github.com/rackerlabs/instrumented-ceilometer.
+First, a few packages that could be installed to help with a fresh distribution (specifically using Debian Squeeze):
+
+```
+libmysqlclient-dev
+libpq-dev
+```
+
+Second, you need to install your desired branch of Ceilometer to test. We have a fork set aside for instrumentation here: https://github.com/rackerlabs/instrumented-ceilometer.
 
 Once you pull down the repository, it's important to install the requirements for Ceilometer to work, this will pick up the database driver dependencies for you.
 
