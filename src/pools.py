@@ -92,7 +92,7 @@ class Pool(object):
                  itertools.product(services, range(4))]
         tasks = ['task_%d' % t for t in range(20)]
         states = ['state_%s' % n for n in range(20)]
-        flavors = ["%s" % str(uuid.uuid4()) for n in range(10)]
+        flavors = ["%s" % uuid.uuid4() for n in range(10)]
         instance_type_ids = range(len(flavors))
         image_types = ['base', 'snapshot']
         os_types = ['linux', 'windows', 'centos']
@@ -102,23 +102,23 @@ class Pool(object):
 
         # Some of these could have too low cardinality to show up with lower
         # scales, so set at least one.
-        images = [uuid.uuid4()] + \
+        images = [str(uuid.uuid4())] + \
             ["%s" % str(uuid.uuid4()) for (o, n) in
              itertools.product(rax_options, range(int(self.scale * low_card)))]
 
-        instances = [uuid.uuid4()] + \
+        instances = [str(uuid.uuid4())] + \
             ["%s" % str(uuid.uuid4()) for n in
              range(int(self.scale * med_high_card))]
 
-        tenants = [uuid.uuid4()] + \
+        tenants = [str(uuid.uuid4())] + \
             ["%s" % str(uuid.uuid4()) for n in
              range(int(self.scale * med_card))]
 
-        users = [uuid.uuid4()] + \
+        users = [str(uuid.uuid4())] + \
             ["%s" % str(uuid.uuid4()) for n in
              range(int(self.scale * med_high_card))]
 
-        request_ids = [uuid.uuid4()] + \
+        request_ids = ["req-%s" % uuid.uuid4()] + \
             ["req-%s" % uuid.uuid4() for x in
              range(int(self.scale * high_card))]
 
