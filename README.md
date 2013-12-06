@@ -121,4 +121,6 @@ $ python time_inserts.py -n "thomas test 11" -e 1000
 11655 | 2013-12-03 22:17:23.966 | plugins.log [-] Average events per second: 353.250745129
 ```
 
+A helpful link with pip in Debian Squeeze: http://www.andreagrandi.it/2013/05/02/how-to-fix-pip-under-debian-6-0-squeeze-importerror-cannot-import-name-parser/
+
 *Note: Please open up a GitHub issue for any problems you run into.*
