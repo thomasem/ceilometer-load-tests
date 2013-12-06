@@ -11,6 +11,7 @@ Getting Started (hopefully fast :)
 First, a few packages that could be installed to help with a fresh distribution (specifically using Debian Squeeze):
 
 ```
+libxslt1-dev
 libmysqlclient-dev
 libpq-dev
 ```
