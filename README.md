@@ -21,7 +21,7 @@ Second, you need to install your desired branch of Ceilometer to test. We have a
 Once you pull down the repository, it's important to install the requirements for Ceilometer to work, this will pick up the database driver dependencies for you.
 
 ```
-cd ./ceilometer
+cd ./instrumented-ceilometer
 pip install -r requirements.txt
 python setup.py install
 ```
