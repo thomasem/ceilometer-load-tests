@@ -144,7 +144,7 @@ class RandomQueryGenerator(object):
     def _get_rand_generated_window(self):
         start = random.randrange(self.min_generated, self.max_generated)
         end = random.randrange(
-            start, random.randrange(self.max_generated_window))
+            start, start + random.randrange(self.max_generated_window))
         return (datetime.datetime.utcfromtimestamp(decimal.Decimal(start)),
                 datetime.datetime.utcfromtimestamp(decimal.Decimal(end)))
 
