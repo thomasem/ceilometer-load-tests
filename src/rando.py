@@ -40,7 +40,7 @@ class RandomEventGenerator(object):
         negative_boundary = -float(self.rand_generated_potential) / \
             self.message_order_integrity
         delta = random.randint(negative_boundary,
-                               self.rand_generated_potential)
+                               self.rand_generated_potential) + random.random()
         self.last_generated = self.last_generated + \
             datetime.timedelta(seconds=delta)
         return self.last_generated
@@ -133,9 +133,9 @@ class RandomEventGenerator(object):
 
 class RandomQueryGenerator(object):
 
-    def __init__(self, pool, settings):
+    def __init__(self, pool, settings, writes_started=time.time()):
         self.pool = pool
-        self.min_generated = int(time.time())
+        self.min_generated = int(writes_started)
         self.max_generated = self.min_generated + \
             (settings.rand_generated_potential * pool.scale)
         self.num_traits = settings.number_of_traits

@@ -34,7 +34,7 @@ import test_setup
 cfg.CONF.set_override("connection", test_setup.db_conn, group='database')
 
 
-class InsertTest(test_base.TestBase):
+class InsertTest(test_base.BaseTest):
 
     def __init__(self, event_generator, conn, settings):
         self.event_generator = event_generator

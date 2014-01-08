@@ -54,7 +54,7 @@ class ReadTest(test_base.TestBase):
                 'returned_events': len(events),
                 'filter': event_filter
             }
-            plugins.invoke('publish', plugin_list, stats)
+            publish(stats)
             time.sleep(self.rest)
 
 
@@ -69,12 +69,18 @@ if __name__ == "__main__":
                         help=("Input filename for a randomizer pool dump file."
                               "This is needed to define the query parameters.")
                         )
+    parser.add_argument('--first_write', '-w', type=float,
+                        help=("First write, so we know the event generated "
+                              "potential.")
+                        )
 
     args = parser.parse_args()
     pool = pools.Pool.from_snapshot(args.pool)
     plugin_list = plugins.initialize_plugins(args.name, test_setup.plugins)
     conn = storage.get_connection(cfg.CONF)
-    query_generator = rando.RandomQueryGenerator(pool, test_setup)
+    query_generator = rando.RandomQueryGenerator(pool, test_setup,
+                                                 writes_started=
+                                                 args.first_write)
 
     test = ReadTest(query_generator, conn, args)
     test.run_test(publish=lambda x: plugins.invoke('publish', plugin_list, x))
