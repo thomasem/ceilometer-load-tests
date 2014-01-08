@@ -51,5 +51,5 @@ class GraphiteDriver(base.PluginBase):
         sock.close()
 
     def publish(self, stats, **kwargs):
-        for k, v in stats:
+        for k, v in stats.iteritems():
             self._send_to_graphite(k, v)

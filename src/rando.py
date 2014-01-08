@@ -135,10 +135,9 @@ class RandomQueryGenerator(object):
 
     def __init__(self, pool, settings):
         self.pool = pool
-        self.min_generated = time.time()
+        self.min_generated = int(time.time())
         self.max_generated = self.min_generated + \
             (settings.rand_generated_potential * pool.scale)
-        self.rest = settings.rest
         self.num_traits = settings.number_of_traits
 
     def _get_rand_generated_window(self):
@@ -152,7 +151,7 @@ class RandomQueryGenerator(object):
                                      len(self.pool.events_pool))]
 
     def _get_rand_traits_filter(self):
-        possible_key_types = ['glance', 'nova']
+        possible_key_types = ['glance', 'compute']
         key_type = random.choice(possible_key_types)
         traits_filter = []
         for i in range(self.num_traits):
@@ -160,16 +159,17 @@ class RandomQueryGenerator(object):
                 getattr(self.pool, "%s_keys" % key_type))
             trait = {}
             trait['key'] = trait_conf[0]
-            trait[models.Trait.get_name_by_type(trait_conf[1])] = \
-                random.choice(trait_conf[2])
+            trait['t_%s' % models.Trait.get_name_by_type(trait_conf[1])] = \
+                random.choice(trait_conf[2]) if trait_conf[2] else None
             traits_filter.append(trait)
+            print trait
         return traits_filter
 
     def create_random_filter(self):
-        generated_window = self._get_random_generated_window()
-        event_type = self._get_random_event_type()
+        generated_window = self._get_rand_generated_window()
+        event_type = self._get_rand_event_type()
         return storage.EventFilter(start_time=generated_window[0],
                                    end_time=generated_window[1],
                                    event_type=event_type,
-                                   traits_filter=self.get_rand_traits_filter()
+                                   traits_filter=self._get_rand_traits_filter()
                                    )

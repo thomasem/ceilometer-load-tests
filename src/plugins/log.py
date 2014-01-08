@@ -42,5 +42,5 @@ class LogDriver(base.PluginBase):
         log.setup(test_name)
 
     def publish(self, stats, **kwargs):
-        for k, v in stats:
+        for k, v in stats.iteritems():
             LOG.info('%s:\t%s' % (k, v))

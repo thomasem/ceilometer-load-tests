@@ -33,25 +33,28 @@ import test_setup
 cfg.CONF.set_override("connection", test_setup.db_conn, group='database')
 
 
-class ReadTest(test_base.BaseTest):
+class ReadTest(test_base.TestBase):
 
     def __init__(self, query_generator, conn, settings):
         self.conn = conn
         self.settings = settings
         self.query_generator = query_generator
+        self.rest = settings.rest
 
     def run_test(self, publish):
         while True:
             total_seconds = 0
             event_filter = self.query_generator.create_random_filter()
             start = time.time()
-            conn.get_events(event_filter)
+            events = conn.get_events(event_filter)
             end = time.time()
             total_seconds += end - start
             stats = {
                 'query_time': total_seconds,
+                'returned_events': len(events),
+                'filter': event_filter
             }
-            plugins.invoke('publish_read', plugin_list, stats)
+            plugins.invoke('publish', plugin_list, stats)
             time.sleep(self.rest)
 
 
@@ -66,14 +69,12 @@ if __name__ == "__main__":
                         help=("Input filename for a randomizer pool dump file."
                               "This is needed to define the query parameters.")
                         )
-    parser.add_argument('--number_of_traits', '-t', type=str, default=1,
-                        help="Number of random trait filters to generate.")
 
     args = parser.parse_args()
     pool = pools.Pool.from_snapshot(args.pool)
     plugin_list = plugins.initialize_plugins(args.name, test_setup.plugins)
     conn = storage.get_connection(cfg.CONF)
-    query_generator = rando.RandomQueryGenerator(pool, args)
+    query_generator = rando.RandomQueryGenerator(pool, test_setup)
 
     test = ReadTest(query_generator, conn, args)
     test.run_test(publish=lambda x: plugins.invoke('publish', plugin_list, x))

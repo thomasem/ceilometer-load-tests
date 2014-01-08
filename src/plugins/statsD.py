@@ -36,5 +36,5 @@ class StatsDDriver(base.PluginBase):
         self.gauge = self.client.get_client(class_=statsd.Gauge)
 
     def publish(self, stats, **kwargs):
-        for k, v in stats:
+        for k, v in stats.iteritems():
             self.gauge.send(k, v)
