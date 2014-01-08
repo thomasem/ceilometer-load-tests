@@ -68,11 +68,11 @@ if __name__ == "__main__":
                         help=("Input filename for a randomizer pool dump file."
                               "This is needed to define the query parameters.")
                         )
-    parser.add_argument('--from', '-f', type=float,
+    parser.add_argument('--from_ts', '-f', type=float,
                         help=("Generate queries with a generated window from "
                               "this timestamp.")
                         )
-    parser.add_argument('--until', '-u', type=float,
+    parser.add_argument('--until_ts', '-u', type=float,
                         help=("Generate queries with a generated window until "
                               "this timestamp.")
                         )
@@ -82,8 +82,8 @@ if __name__ == "__main__":
     plugin_list = plugins.initialize_plugins(args.name, test_setup.plugins)
     conn = storage.get_connection(cfg.CONF)
     query_generator = rando.RandomQueryGenerator(pool, test_setup,
-                                                 from_ts=
-                                                 args.first_write)
+                                                 from_ts=args.from_ts,
+                                                 until_ts=args.until_ts)
 
     test = ReadTest(query_generator, conn, args)
     test.run_test(publish=lambda x: plugins.invoke('publish', plugin_list, x))
