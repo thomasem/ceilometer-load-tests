@@ -52,7 +52,6 @@ class ReadTest(test_base.TestBase):
             stats = {
                 'query_time': total_seconds,
                 'returned_events': len(events),
-                'filter': event_filter
             }
             publish(stats)
             time.sleep(self.rest)
@@ -65,13 +64,17 @@ if __name__ == "__main__":
                         help="Name of the test; used for publishing stats.")
     parser.add_argument('--rest', '-r', type=int, default=0,
                         help="Seconds to rest between queries. Default: 0")
-    parser.add_argument('--pool', '-f', type=str, default=None, required=True,
+    parser.add_argument('--pool', '-p', type=str, default=None, required=True,
                         help=("Input filename for a randomizer pool dump file."
                               "This is needed to define the query parameters.")
                         )
-    parser.add_argument('--first_write', '-w', type=float,
-                        help=("First write, so we know the event generated "
-                              "potential.")
+    parser.add_argument('--from', '-f', type=float,
+                        help=("Generate queries with a generated window from "
+                              "this timestamp.")
+                        )
+    parser.add_argument('--until', '-u', type=float,
+                        help=("Generate queries with a generated window until "
+                              "this timestamp.")
                         )
 
     args = parser.parse_args()
@@ -79,7 +82,7 @@ if __name__ == "__main__":
     plugin_list = plugins.initialize_plugins(args.name, test_setup.plugins)
     conn = storage.get_connection(cfg.CONF)
     query_generator = rando.RandomQueryGenerator(pool, test_setup,
-                                                 writes_started=
+                                                 from_ts=
                                                  args.first_write)
 
     test = ReadTest(query_generator, conn, args)

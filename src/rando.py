@@ -133,11 +133,11 @@ class RandomEventGenerator(object):
 
 class RandomQueryGenerator(object):
 
-    def __init__(self, pool, settings, writes_started=time.time()):
+    def __init__(self, pool, settings, from_ts=time.time(),
+                 until_ts=time.time() + 604800):
         self.pool = pool
-        self.min_generated = int(writes_started)
-        self.max_generated = self.min_generated + \
-            (settings.rand_generated_potential * pool.scale)
+        self.min_generated = int(from_ts)
+        self.max_generated = int(until_ts)
         self.num_traits = settings.number_of_traits
         self.max_generated_window = settings.max_generated_window
 
