@@ -28,10 +28,16 @@ extra_traits_pool_size = 50     # Extra traits for messages
 random_str_pool_size = 100      # Extra strings for additional random traits
 rand_int_start = 12897          # Starting point for randint(...)
 rand_int_range = 40             # Range from starting point for randint(...)
+
+# Event Generator Settings
 timestamp_start = 1262304000    # Start of timestamp range in unix time
 timestamp_end = 1356955199      # End of timestamp range in unix time
 rand_generated_potential = 10   # Potential time for next 'generated' trait
 message_order_integrity = 5     # Rank of integrity for message ordering (1-5)
+
+# Query Generator Settings
+number_of_traits = 1            # Number of traits to filter in random queries
+max_generated_window = 604800   # (Seconds) the potential time window to query
 
 # Plugin settings
 # We'll simply do this until we start using Stevedore for extension management.

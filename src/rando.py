@@ -139,10 +139,12 @@ class RandomQueryGenerator(object):
         self.max_generated = self.min_generated + \
             (settings.rand_generated_potential * pool.scale)
         self.num_traits = settings.number_of_traits
+        self.max_generated_window = settings.max_generated_window
 
     def _get_rand_generated_window(self):
         start = random.randrange(self.min_generated, self.max_generated)
-        end = random.randrange(start, self.max_generated)
+        end = random.randrange(
+            start, random.randrange(self.max_generated_window))
         return (datetime.datetime.utcfromtimestamp(decimal.Decimal(start)),
                 datetime.datetime.utcfromtimestamp(decimal.Decimal(end)))
 
@@ -157,12 +159,12 @@ class RandomQueryGenerator(object):
         for i in range(self.num_traits):
             trait_conf = random.choice(
                 getattr(self.pool, "%s_keys" % key_type))
-            trait = {}
-            trait['key'] = trait_conf[0]
-            trait['t_%s' % models.Trait.get_name_by_type(trait_conf[1])] = \
-                random.choice(trait_conf[2]) if trait_conf[2] else None
-            traits_filter.append(trait)
-            print trait
+            if trait_conf[2]:
+                trait = {}
+                trait['key'] = trait_conf[0]
+                trait['t_%s' % models.Trait.get_name_by_type(trait_conf[1])] \
+                    = random.choice(trait_conf[2])
+                traits_filter.append(trait)
         return traits_filter
 
     def create_random_filter(self):
