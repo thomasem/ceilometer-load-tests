@@ -15,26 +15,18 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-"""StatsD plugins for Ceilometer load testing.
+"""Test base class for ceilometer load tests.
 """
 
-import statsd
-
-import base
+import abc
 
 
-class StatsDDriver(base.PluginBase):
-    """Sends metrics to StatsD.
+class TestBase:
+    """Base class for load tester plugins.
     """
+    __metaclass__ = abc.ABCMeta
 
-    def __init__(self, test_name, host='localhost', port=8125, sample_rate=1):
-        """Configure the plugin with what StatsD host to talk to and how.
+    @abc.abstractmethod
+    def run_test(self):
+        """Called after each log interval.
         """
-        super(StatsDDriver, self).__init__()
-        conn = statsd.Connection(host=host, port=port, sample_rate=sample_rate)
-        self.client = statsd.Client(test_name, conn)
-        self.gauge = self.client.get_client(class_=statsd.Gauge)
-
-    def publish(self, stats, **kwargs):
-        for k, v in stats:
-            self.gauge.send(k, v)

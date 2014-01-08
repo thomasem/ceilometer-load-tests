@@ -18,8 +18,6 @@
 """Graphite plugins for Ceilometer load testing.
 """
 
-from datetime import timedelta
-
 from ceilometer.openstack.common import log
 from oslo.config import cfg
 
@@ -44,28 +42,5 @@ class LogDriver(base.PluginBase):
         log.setup(test_name)
 
     def publish(self, stats, **kwargs):
-        log_msg = ("Inserted %d events in %s\tTotal inserted: %d" %
-                   (stats['stored'], str(timedelta(seconds=stats['seconds'])),
-                    stats['total_stored']))
-        LOG.info(log_msg)
-
-        if stats['failed'] > 0:
-            log_msg = "%d failed events" % (stats['failed'])
-            LOG.info(log_msg)
-
-    def after_test(self, totals, **kwargs):
-        total_events = totals['total_events']
-        total_time = totals['total_seconds']
-        LOG.info("".join("=" for x in range(75)))
-        log_msg = 'Total time to insert %d documents: %s' % \
-            (total_events, str(timedelta(seconds=total_time)))
-        LOG.info(log_msg)
-
-        avg_per_event = total_time / total_events
-        log_msg = 'Average time per event: %s' % (
-                  (str(timedelta(seconds=avg_per_event))))
-        LOG.info(log_msg)
-
-        avg_events_per_sec = total_events / total_time
-        log_msg = 'Average events per second: %s' % (avg_events_per_sec)
-        LOG.info(log_msg)
+        for k, v in stats:
+            LOG.info('%s:\t%s' % (k, v))

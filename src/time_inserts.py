@@ -28,57 +28,60 @@ from pymongo import errors
 import plugins
 import pools
 import rando
+import test_base
 import test_setup
 
 cfg.CONF.set_override("connection", test_setup.db_conn, group='database')
 
 
-def before_test(event_generator, plugins, conn, settings):
-    if test_setup.db_conn.startswith('mongodb'):
-        conn.write_concern = {'w': settings.write_concern,
-                              'j': settings.journaling}
-        if settings.sharding:
-            try:
-                conn.conn.admin.command('enablesharding', 'ceilometer')
-                conn.conn.admin.command('shardcollection', 'ceilometer.event',
-                                        key={'_id': "hashed"})
-            except errors.OperationFailure:
-                pass
+class InsertTest(test_base.BaseTest):
 
+    def __init__(self, event_generator, conn, settings):
+        self.event_generator = event_generator
+        self.conn = conn
+        self.settings = settings
+        if test_setup.db_conn.startswith('mongodb'):
+            conn.write_concern = {'w': settings.write_concern,
+                                  'j': settings.journaling}
+            if settings.sharding:
+                try:
+                    conn.conn.admin.command('enablesharding', 'ceilometer')
+                    conn.conn.admin.command('shardcollection',
+                                            'ceilometer.event',
+                                            key={'_id': "hashed"})
+                except errors.OperationFailure:
+                    pass
 
-def run_test(event_generator, plugin_list, conn, settings):
-    total_seconds = 0
-    total_failed = 0
-    delta_history = []
-    revs = settings.events / settings.batch
-    publish_frequency = settings.publish
-    for x in range(1, revs + 1):
-        events = event_generator.generate_random_events(settings.batch)
-        start = time.time()
-        failed = conn.record_events(events)
-        end = time.time()
-        total_seconds += end - start
-        total_failed += len(failed)
+    def run_test(self, publish=lambda x: x):
+        total_seconds = 0
+        total_failed = 0
+        delta_history = []
+        revs = self.settings.events / self.settings.batch
+        publish_frequency = self.settings.publish
+        for x in range(1, revs + 1):
+            events = self.event_generator.generate_random_events(
+                self.settings.batch)
+            start = time.time()
+            failed = conn.record_events(events)
+            end = time.time()
+            total_seconds += end - start
+            total_failed += len(failed)
 
-        if x % publish_frequency == 0:
-            delta_history.append(total_seconds)
-            stats = {'stored': publish_frequency * settings.batch,
-                     'frequency': settings.publish,
-                     'seconds': total_seconds,
-                     'total_stored': x * settings.batch,
-                     'failed': total_failed}
-            plugins.invoke('publish', plugin_list, stats)
-            total_seconds = 0
-            total_failed = 0
-            time.sleep(settings.rest)
+            if x % publish_frequency == 0:
+                delta_history.append(total_seconds)
+                stats = {'seconds': total_seconds,
+                         'events_per_second': float(self.settings.batch) /
+                         total_seconds,
+                         'total': x * self.settings.batch,
+                         'failed': total_failed}
+                publish(stats)
+                total_seconds = 0
+                total_failed = 0
+                time.sleep(self.settings.rest)
 
-    totals = {'total_seconds': sum(delta_history),
-              'total_events': settings.events}
-    plugins.invoke('after_test', plugin_list, totals)
-
-
-def after_test(event_generator, plugins, conn, settings):
-    pass
+        totals = {'total_seconds': sum(delta_history),
+                  'total_events': self.settings.events}
+        publish(totals)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Time Inserting Events")
@@ -113,8 +116,8 @@ if __name__ == "__main__":
     pool = pools.Pool.from_snapshot(args.pool) if args.pool else \
         pools.Pool(args.events, test_setup, store=args.store)
     rand = rando.RandomEventGenerator(pool, test_setup)
-    plugin_list = plugins.initialize_plugins(args.name, test_setup.plugins)
     conn = storage.get_connection(cfg.CONF)
+    plugin_list = plugins.initialize_plugins(args.name, test_setup.plugins)
 
-    before_test(rand, plugin_list, conn, args)
-    run_test(rand, plugin_list, conn, args)
+    test = InsertTest(rand, conn, args)
+    test.run_test(publish=lambda x: plugins.invoke('publish', plugin_list, x))

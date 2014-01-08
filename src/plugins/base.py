@@ -35,8 +35,3 @@ class PluginBase:
     def publish(self):
         """Called after each log interval.
         """
-
-    @abc.abstractmethod
-    def after_test(self):
-        """Called at the completion of the test.
-        """
